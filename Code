@@ -1,0 +1,136 @@
+import pyaudio
+import pyttsx3
+import datetime
+import speech_recognition as sr
+import wikipedia 
+import webbrowser
+import os
+import smtplib
+import random
+
+
+engine = pyttsx3.init('sapi5')
+voices = engine.getProperty('voices')
+engine.setProperty('voices', voices[0].id)
+
+
+def sendEmail(to,content):
+    server=smtplib.SMTP('smtp.gmail.com',587)
+    server.ehlo()
+    server.starttls()
+    server.login('your@gmail.com','yourpassword')
+    server.sendmail('yourr0@gmail.com',to,content)
+    server.close()
+
+
+
+def speak(audio):
+    engine.say(audio)
+    engine.runAndWait()
+
+
+def wishMe():
+    hour = int(datetime.datetime.now().hour)
+    if hour >= 0 and hour < 12:
+        speak("Good Morning")
+    elif hour >= 12 and hour < 18:
+        speak("Good Afternoon")
+    else:
+        speak("Good Evening ")
+        
+    speak("please tell me how may i help u")
+
+
+
+def takeCommand():
+    r=sr.Recognizer()
+    mic=sr.Microphone()
+    with mic as source:
+        r.adjust_for_ambient_noise(source)
+        print("Listening...")
+        audio=r.listen(source)
+    try:    
+        print("recognizing...")
+        query=r.recognize_google(audio,language="en-in")
+        print(query)
+        speak(query)
+
+    except Exception:
+        print("say that again please ")
+        return "None"
+    return query
+    
+
+if __name__ == "__main__":
+    wishMe()
+    while True:
+        
+        query=takeCommand().lower() 
+
+
+        if 'wikipedia' in query:
+            speak('searching wikipedia....')
+            query=query.replace("wikipedia","")
+            results=wikipedia.summary(query,sentences=2)
+            speak("According to wikipedia")
+            print(results)
+            speak(results)
+        
+        elif 'open youtube' in query:
+            webbrowser.open("youtube.com")
+            speak('youtube as been opened')
+
+
+        elif 'open google' in query:
+            webbrowser.open("google.com")
+            speak('google as been opened')
+        
+
+        elif 'open stackoverflow' in query:
+            webbrowser.open("stackoverflow.com")
+            speak("stackoverflow has been")
+        
+            
+        elif 'play music' in query:
+            music_dir='D:\\INNOVATIVE\\songs'
+            songs=os.listdir(music_dir)
+            k=random.randint(0,27)
+            os.startfile(os.path.join(music_dir,songs[k]))
+
+        elif 'time' in query:
+            strTime=datetime.datetime.now().strftime("%H:%M:%S")
+            speak(f"the time is{strTime}")
+            print(strTime)
+
+        elif 'open visualstudios'  in query:
+            codepath="C:\\Program Files\\Microsoft VS Code\\Code.exe"
+            os.startfile(codepath)
+            speak('visual studio as been opened')
+        
+
+        elif 'open pycharm' in query:
+            path="C:\\Program Files\\JetBrains\\PyCharm Community Edition 2019.2.3\\bin\\pycharm64.exe"
+            os.startfile(path)
+            speak('pycharm has been opened')
+
+
+
+        elif 'send email' in query:
+            try:
+                speak("what do i send")
+                content=takeCommand()
+                to="sendermail@gmail.com"
+                sendEmail(to,content)
+                speak("Email has been sent")
+            except Exception as e:
+                print(e)
+                speak("sorry i couidnot send mail")
+            
+            
+        elif 'bye' in query:
+            speak('byee')
+            speak('Talk to you soon')
+            exit()
+
+        elif 'none' in query:
+            exit()
