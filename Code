@@ -1,4 +1,3 @@
-import pyaudio
 import pyttsx3
 import datetime
 import speech_recognition as sr
@@ -6,41 +5,190 @@ import wikipedia
 import webbrowser
 import os
 import smtplib
+import subprocess
 import random
+import pyaudio
+import requests, json
+from time import sleep
+import keyboard
+import pyautogui
+import pyowm
+import requests
+import feedparser
+import psutil
+import wmi
+import time 
+import wolframalpha
+from googletrans import Translator
+from PIL import Image 
+import pyperclip
+from pynput.mouse import Button, Controller
+import schedule
+import ctypes
+import playsound
+from urllib.request import urlopen
+import soup
+from bs4 import BeautifulSoup
 
+
+
+
+
+
+ 
+allheadlines = []
+ 
+ 
+newsurls = {
+ 
+    'googlenews': 'https://news.google.com/news/rss/?hl=en&amp;ned=us&amp;gl=US',
+ 
+}
+ 
+ 
+
+
+
+
+
+
+ready=["hello sir","hey there","yes sir"]
+
+language=["Afrikaans","Albanian","Amharic","Arabic","Armenian","Azerbaijani","Basque","Belarusian","Bengali","Bosnian","Bulgarian","Burmese","Catalan","Cebuano","Chewa","Chinese","Corsican","Croatian","Czech","Danish","Dutch","English","Esperanto","Estonian","Filipino","Finnish","French","Galician","Georgian","German","Greek","Gujarati","Haitian Creole","Hausa","Hawaiian","Hebrew","Hindi","Hmong","Hungarian","Icelandic","Igbo","Indonesian","Irish","Italian","Japanese","Javanese","Kannada","Kazakh","Khmer","Kinyarwanda","Korean","Kurdish","Kyrgyz","Lao","Latin","Latvian","Lithuanian","Luxembourgish","Macedonian","Malagasy","Malay","Malayalam","Maltese","Maori","Marathi","Mongolian","Nepali","Norwegian","Odia","Pashto","Persian","Polish","Portuguese","Punjabi","Romanian","Russian","Samoan","Scots Gaelic","Serbian","Sesotho","Shona","Sindhi","Sinhala","Slovak","Slovenian","Somali","Spanish","Sundanese","Swahili","Swedish","Tajik","Tamil","Tatar","Telugu","Thai","Turkish","Turkmen","Ukrainian","Urdu","Uyghur","Uzbek","Vietnamese","Welsh","West Frisian","Xhosa","Yiddish","Yoruba","Zulu"]
+mylanguage=[]
+for i in language:
+    mylanguage.append(i.lower())
+
+
+
+
+mywolfclient=wolframalpha.Client("VHL7AX-69GRTAR357")
 
 engine = pyttsx3.init('sapi5')
 voices = engine.getProperty('voices')
 engine.setProperty('voices', voices[0].id)
+rate=engine.getProperty('rate')
+engine.setProperty('rate',160)
 
 
-def sendEmail(to,content):
+def sendEmail(to,sub,content):
     server=smtplib.SMTP('smtp.gmail.com',587)
     server.ehlo()
     server.starttls()
-    server.login('your@gmail.com','yourpassword')
-    server.sendmail('yourr0@gmail.com',to,content)
+    server.login('mymail@gmail.com','Password')
+    server.sendmail('aryastark95470@gmail.com',to,'Subject:  '+sub+'\n\n '+content)
     server.close()
 
 
+ 
+def shutdown():
+    speak('understood sir')
+    speak('connecting to command prompt')
+    speak('shutting down your computer')
+    os.system('shutdown -s')
 
+
+def brightness(voice_note):
+	if 'decrease ' in voice_note:
+		dec = wmi.WMI(namespace='wmi')
+		methods = dec.WmiMonitorBrightnessMethods()[0]
+		methods.WmiSetBrightness(30, 0)
+        
+	elif 'increase ' in voice_note:
+		ins = wmi.WMI(namespace='wmi')
+		methods = ins.WmiMonitorBrightnessMethods()[0]
+		methods.WmiSetBrightness(80, 0)
+
+
+
+def parseRSS( rss_url ):
+    return feedparser.parse( rss_url )
+ 
+ 
+ 
+def getHeadlines(rss_url):
+    headlines = []
+ 
+    feed = parseRSS(rss_url)
+    for newsitem in feed['items']:
+        headlines.append(newsitem['title'])
+ 
+    return headlines[0:10]
+ 
+ 
+
+
+
+
+def copy_clipboard():
+    pyautogui.hotkey('ctrl', 'c')
+    time.sleep(2) 
+    return pyperclip.paste()
+
+
+def takenotes(text):
+    speak("name the file to save")
+    sleep(1)
+    saveit=str(takeCommand()).lower()
+    file_name=saveit+"-note.txt"
+    with open(file_name,"w") as f:
+        f.write(text)
+    speak("notes as been saved")
+    speak("would you like to look")
+    yesorno=str(takeCommand()).lower()
+    if 'yes' in yesorno:
+        subprocess.Popen(['notepad.exe',file_name])
+        speak("notepad is opened")
+    else:
+        speak("as you wish sir")  
+    
 def speak(audio):
     engine.say(audio)
     engine.runAndWait()
 
 
 def wishMe():
+    res=mywolfclient.query("weather")
+    result=next(res.results).text
+    playsound.playsound("Robot_blip-Marianne_Gagnon-120342607.wav")
+    speak("starting all system applications")
+    speak("installing all drivers")
+    speak("calibrating and examining all core processors")
+    playsound.playsound("system start.mp3")
+    playsound.playsound("system start.mp3")
+    '''path="C:\\Program Files\\Rainmeter\\Rainmeter.exe"
+    os.startfile(path)'''
+    speak("all systems have been started")
+    speak("now i am online")
+    speak("hello i am jarvis")
     hour = int(datetime.datetime.now().hour)
     if hour >= 0 and hour < 12:
         speak("Good Morning")
-    elif hour >= 12 and hour < 18:
+    elif hour >= 12 and hour < 16:
         speak("Good Afternoon")
     else:
         speak("Good Evening ")
-        
-    speak("please tell me how may i help u")
+    
+    current_time = time.strftime("%d:%B:%Y:%A:%H:%M:%S")
+    print(current_time)
+    speak('sir, today date is' + time.strftime("%d:%B:%Y:%A"))
+    speak("current time is")
+    speak(time.strftime("%I %M %p" ))
 
 
+    speak("")
+
+    speak("the present weather is")
+    
+    
+    print(result)
+    speak(result)
+                    
+    speak("to give me command please say  hey jarvis")
+    
+
+
+#schedule to use alarm 
 
 def takeCommand():
     r=sr.Recognizer()
@@ -53,84 +201,476 @@ def takeCommand():
         print("recognizing...")
         query=r.recognize_google(audio,language="en-in")
         print(query)
-        speak(query)
+        #speak(query)
 
     except Exception:
         print("say that again please ")
-        return "None"
+        speak("say that again please ")
+        return takeCommand()
     return query
-    
+
+
+
+
+mail={
+    "jai":"jaideepnaidu4089@gmail.com",
+    "navya":"aryastark95470@gmail.com",
+    "jaideep":"jaideepnaidu1470@gmail.com",
+    "neha":"d.niharika2000@gmail.com"
+
+}
+
+
+
+
+
+wake="hey jarvis"
+
 
 if __name__ == "__main__":
+    
     wishMe()
+    
+    
     while True:
-        
-        query=takeCommand().lower() 
+        text=str(takeCommand()).lower()
 
-
-        if 'wikipedia' in query:
-            speak('searching wikipedia....')
-            query=query.replace("wikipedia","")
-            results=wikipedia.summary(query,sentences=2)
-            speak("According to wikipedia")
-            print(results)
-            speak(results)
-        
-        elif 'open youtube' in query:
-            webbrowser.open("youtube.com")
-            speak('youtube as been opened')
-
-
-        elif 'open google' in query:
-            webbrowser.open("google.com")
-            speak('google as been opened')
-        
-
-        elif 'open stackoverflow' in query:
-            webbrowser.open("stackoverflow.com")
-            speak("stackoverflow has been")
-        
+        if text.count(wake)>0:
             
-        elif 'play music' in query:
-            music_dir='D:\\INNOVATIVE\\songs'
-            songs=os.listdir(music_dir)
-            k=random.randint(0,27)
-            os.startfile(os.path.join(music_dir,songs[k]))
+            playsound.playsound("Robot_blip-Marianne_Gagnon-120342607.wav")
+            
+            speak(random.choice(ready))
+            speak("give me the commands")
+            query=str(takeCommand()).lower()
 
-        elif 'time' in query:
-            strTime=datetime.datetime.now().strftime("%H:%M:%S")
-            speak(f"the time is{strTime}")
-            print(strTime)
-
-        elif 'open visualstudios'  in query:
-            codepath="C:\\Program Files\\Microsoft VS Code\\Code.exe"
-            os.startfile(codepath)
-            speak('visual studio as been opened')
         
+            if 'open menu' in query:
+                keyboard.press_and_release("windows")
+                speak("shall i select")
+                f=0
+                k=0
+                while f==0:
+                    speak("if you want to change to column tell yes or no")
+                    takeit=str(takeCommand()).lower()
+                    if 'yes' in takeit:
+                        keyboard.press_and_release("tab")
+                    elif 'no' in takeit:
+                        f=1
+                speak("now what should i select")
+                while k==0:
+                    speak("if you  want to select the item say yes or up or down")
+                    takeit=str(takeCommand()).lower()
+                    if 'yes' in takeit:
+                        keyboard.press_and_release("enter")
+                        k=1
+                    elif 'up' in takeit:
+                        keyboard.press_and_release("up")
+                    elif 'down' in takeit:
+                        keyboard.press_and_release("down")
+                speak("your task is completed")
 
-        elif 'open pycharm' in query:
-            path="C:\\Program Files\\JetBrains\\PyCharm Community Edition 2019.2.3\\bin\\pycharm64.exe"
-            os.startfile(path)
-            speak('pycharm has been opened')
+                        
 
 
 
-        elif 'send email' in query:
-            try:
-                speak("what do i send")
-                content=takeCommand()
-                to="sendermail@gmail.com"
-                sendEmail(to,content)
-                speak("Email has been sent")
-            except Exception as e:
-                print(e)
-                speak("sorry i couidnot send mail")
+
             
             
-        elif 'bye' in query:
-            speak('byee')
-            speak('Talk to you soon')
-            exit()
+            elif 'bright' in query:
+                brightness(query)
+                speak("brightness is changed sir......done")
 
-        elif 'none' in query:
-            exit()
+            elif 'news for today' in query:
+                
+                for key, url in newsurls.items():
+    
+                    allheadlines.extend(getHeadlines(url))
+ 
+ 
+                for hl in allheadlines:
+                    print(hl)
+                    speak(hl)
+                
+            elif 'take screenshot' in query:
+                speak("Are you sure")
+                speak("yes or no")
+                
+                takescreen=str(takeCommand()).lower()
+                if 'yes' in takescreen:
+                    speak("name of the file")
+                    name=takeCommand()
+                    imageofscreen=pyautogui.screenshot()
+                    imageofscreen.save("%s.png" %name)
+                    speak("screenshot has been saved")
+                    speak("would you like to see")
+                    speak("yes or no")
+                    myss=str(takeCommand()).lower()
+                    if 'yes' in myss:
+                        mydirss='C:/Users/Yerramsetti Jaideep/Desktop/Jaideep/'
+                        mydirss=mydirss+str(name)
+                        mydirss=mydirss+".png"
+                        print(mydirss)
+                        im = Image.open(mydirss) 
+                        im.show() 
+                        speak("it looks good sir")
+                    else:
+                        speak("as you wish sir")        
+                    
+                elif 'no' in takescreen:
+                    speak("as you wish  I am cancelling the process")
+                
+            
+            elif 'today date' in query:
+                current_time = time.strftime("%d:%B:%Y:%A:%H:%M:%S")
+                print(current_time)
+                speak('sir, today date is' + time.strftime("%d:%B:%Y"))
+                speak(time.strftime("%A"))
+                speak('and time is' + time.strftime("%H:%M:%S"))
+                
+
+
+            elif 'lock me up' in query:
+                speak('ok, sir')
+                ctypes.windll.user32.LockWorkStation()
+
+
+            elif 'shut down' in query:
+                shutdown()
+                
+            elif 'wikipedia' in query:
+                speak('searching wikipedia....')
+                query=query.replace("wikipedia","")
+                results=wikipedia.summary(query,sentences=3)
+                speak("According to wikipedia")
+                print(results)
+                speak(results)
+
+            elif 'translate' in query:
+                query=query.lower()
+                
+                query=query.replace("translate","")
+                query=query.replace("into","")
+                query=query.replace(" ","")
+                print(query)
+                speak("what is the text")
+                sente=str(takeCommand())
+                tran=Translator()
+                trasen=tran.translate(sente,src="en",dest=str(query))
+                print(trasen.text)
+                speak(trasen.text)
+
+
+            elif 'type for me' in query:
+                f=0
+                speak("what do you want to type")
+                text=str(takeCommand())
+                with open("myfile.txt","w") as f1:
+                    f1.write(text)
+                f1.close()
+                subprocess.Popen(["notepad.exe","myfile.txt"])
+                speak("typing has been completed")
+                
+                while f==0:
+                    speak("   if you like to type more")
+                    speak("yes or no")
+                    typeit=str(takeCommand()).lower()
+                    if "yes" in typeit:
+                        speak("what do you want to type")
+                        textof=str(takeCommand())
+                        with open("myfile.txt","a") as f2:
+                            f2.write(textof)
+                        f2.close()
+                        
+                        subprocess.Popen(["notepad.exe","myfile.txt"])
+                    else:
+                        speak("type mode is off")
+                        f=1
+                    
+
+                        
+                
+
+
+
+            
+            elif 'locate' in query:
+                query=query.replace("locate","")
+                webbrowser.open("https://www.google.com/maps/search/%s" %query)
+
+
+            
+            elif 'open youtube' in query:
+                speak('what do you want to search')
+                search=takeCommand()
+                webbrowser.open("https://www.youtube.com/results?search_query=%s" %search)
+                speak('youtube as been opened')
+                k=0
+                while k==0:
+                    speak("if you want to select the result command yes else no to get next selected")
+                    takeit=str(takeCommand()).lower()
+                    if "yes" in takeit:
+                        keyboard.press_and_release("enter")
+                        keyboard.press_and_release("enter")
+                        keyboard.press_and_release("k")
+                        keyboard.press_and_release("i")
+                        k=1
+                    elif 'no' in takeit:
+                        keyboard.press_and_release("tab")
+                        keyboard.press_and_release("tab")
+                speak("selected video is playing")
+            
+
+                
+            
+
+
+            elif 'close picture' in query:
+                path="Microsoft.Photos.exe"
+                os.system(f'TASKKILL /F /IM {path}')
+                speak('pictures has been  closed')
+
+
+            elif 'close chrome' in query:
+                path="chrome.exe"
+                os.system(f'TASKKILL /F /IM {path}')
+                speak('chrome has been  closed')
+
+            elif 'open google' in query:
+                speak('what do you want to search')
+                search=takeCommand()
+                webbrowser.open('https://www.google.com/search?q=%s' %search)
+                speak('google as been opened')
+                
+
+            elif 'open mail' in query:
+                webbrowser.open("www.gmail.com")
+                speak("mail has been opened")
+
+            elif "how are you" in query:
+                mystring=['fine sir','i am nice and full energy']
+                speak(random.choice(mystring))
+                speak("what's about you sir")
+                sleep(3)
+
+            elif 'open file explorer' in query:
+                keyboard.press_and_release('windows+E')
+
+
+
+            elif 'talk mod' in query:
+                speak("select text to talk")
+                sleep(5)
+                listof = []
+                var = copy_clipboard()
+                listof.append(var) 
+                print(listof)
+                speak(listof)
+
+                myvoice=keyboard.press_and_release("ctrl+V")
+                print(myvoice)
+
+            elif 'new tab' in query:
+                keyboard.press_and_release('ctrl+T')
+            elif 'history' in query:
+                keyboard.press_and_release('ctrl+H')
+            elif 'download' in query:
+                keyboard.press_and_release('ctrl+J')
+            elif 'switch tab' in query:
+                f=1
+                while f==1:
+                    keyboard.press_and_release('ctrl+tab')
+                    speak("shall i switch again")
+                    yesofno=str(takeCommand()).lower()
+                    if 'no' in yesofno:
+                        f=0
+            elif 'switch app' in query:
+                f=1
+                while f==1:
+                    keyboard.press_and_release('alt+tab')
+                    speak("shall i switch again")
+                    yesofno=str(takeCommand()).lower()
+                    if 'no' in yesofno:
+                        f=0
+                    
+            elif 'edit mode' in query:
+                f=1
+                while f==1:
+                    speak("give me the commands")
+                    editcommand=str(takeCommand()).lower()
+                    if 'select all' in editcommand:
+                        keyboard.press_and_release("ctrl+A")
+                    if 'copy' in editcommand:
+                        pyautogui.hotkey('ctrl','c')
+                        
+                    if 'paste' in editcommand:
+                        keyboard.press_and_release('ctrl+V')
+                    if 'open notepad' in editcommand:
+                        speak("name the file for future purpose")
+                        sleep(1)
+                        saveit=str(takeCommand()).lower()
+                        file_name=saveit+"-note.txt"
+                        with open(file_name,"w") as fit:
+                            fit.write(" ")
+                    
+                        subprocess.Popen(['notepad.exe',file_name])
+                        speak("notepad is opened")
+                        
+                    if 'save it' in editcommand:
+                        keyboard.press_and_release('ctrl+S')
+                    if 'exit' in editcommand:
+                        speak("edit mode exited")
+                        f=0
+
+            elif 'open stackoverflow' in query:
+                speak('what do you want to search')
+                search=takeCommand()
+                webbrowser.open("https://stackoverflow.com/search?q=%s" %search)
+                speak("stackoverflow has been")
+            
+                
+            elif 'play music' in query:
+                music_dir='D:\\daddy songs\\hindi and english songs\\hindi hits'
+                songs=os.listdir(music_dir)
+                k=random.randint(0,27)
+                os.startfile(os.path.join(music_dir,songs[k]))
+            
+            elif 'stop music' in query:
+                path="groove music.exe"
+                os.system(f'TASKKILL /F /IM {path}')
+                speak('music has been  closed')
+                
+
+            elif 'time' in query:
+                strTime=datetime.datetime.now().strftime("%H:%M:%S")
+                speak(f"the time is{strTime}")
+                print(strTime)
+
+            elif 'open visualstudios'  in query:
+                codepath="C:\\Program Files\\Microsoft VS Code\\Code.exe"
+                os.startfile(codepath)
+                speak('visual studio as been opened')
+
+
+            elif 'save notes' in query:
+                speak("what do you want to save")
+                mynotes=str(takeCommand()).lower()
+                takenotes(mynotes)
+                
+
+
+
+                
+
+
+            
+            elif 'close visualstudios' in query:
+                path="code.exe"
+                os.system(f'TASKKILL /F /IM {path}')
+                speak('visualstudios has been  closed')
+            
+
+            elif 'open pycharm' in query:
+                path="C:\\Program Files\\JetBrains\\PyCharm Community Edition 2019.2.3\\bin\\pycharm64.exe"
+                os.startfile(path)
+                speak('pycharm has been opened')
+
+            elif 'close pycharm' in query:
+                path="pycharm64.exe"
+                os.system(f'TASKKILL /F /IM {path}')
+                speak('pycharm has been  closed')
+            
+            elif 'open calculator' in query:
+                path="calc.exe"
+                os.startfile(path)
+                speak("calculator is opened")
+            
+            elif 'close calculator' in query:
+                path="calculator.exe"
+                os.system(f'TASKKILL /F /IM {path}')
+                speak('calculator has been  closed')
+            
+
+        
+            elif 'charge' in query:
+                battery = psutil.sensors_battery()
+                plugged = battery.power_plugged
+                percent=battery.percent
+                speak("the batery is %s charged" %percent)
+                percent=int(percent)
+                print("the percentage of the battery is ",percent)
+
+
+                
+                if percent<30 and plugged==False:
+                    speak('sir, its better to charge....the charging is low')
+                else:
+                    speak("that's cool,your are using your system efficiently")
+            
+                
+                
+            elif 'send email' in query:
+                try:
+                    speak("whom should i send")
+                    whom=str(takeCommand()).lower()
+                    for k in mail:
+                        if str(k)==str(whom):
+                            to=mail[k]
+
+                    print(to)
+                    to=str(to)
+                    speak("what is the subject")
+                    sub=str(takeCommand()).lower()
+                    speak("what do i send")
+                    content=takeCommand()
+                    sendEmail(to,sub,content)
+                    speak("Email has been sent")
+                except Exception as e:
+                    print(e)
+                    speak("sorry i couldnot send mail")
+                
+                
+            
+
+            
+
+            elif 'go offline'  in query :
+                speak("as you wish")
+                speak("i will be their for you any time")
+                speak("byee sir")
+                '''path="C:\\Program Files\\Rainmeter\\Rainmeter.exe"
+                os.system(f'TASKKILL /F /IM {path}')'''
+                exit()
+
+
+
+            else:
+                myquery=query
+                speak("Searching.....")
+                try:
+                    try:
+                        res=mywolfclient.query(myquery)
+                        result=next(res.results).text
+                        speak("may be i got it")
+                        sleep(1)
+                        print(result)
+                        speak(result)
+                    except:
+                        result=wikipedia.summary(myquery,sentence=3)
+                        speak('Wikipedia says - ')
+                        print(result)
+                        speak(result)
+                except:
+                    speak("sorry i could not fetch any info")
+                    speak("may be try here")
+                    webbrowser.open('https://www.google.com/search?q=%s' %myquery)
+
+            
+
+            
+
+            
+            
+
+
+
+
